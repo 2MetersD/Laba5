@@ -1,0 +1,1 @@
+For the full release notes for this release, see https://docs.hazelcast.com/hazelcast/5.5/release-notes/5-5-0.

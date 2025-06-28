@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # --- СЕРВІС CONSUL ДОДАНО ---
+  consul:
+    image: hashicorp/consul:1.18 # Використовуємо конкретну версію
+    container_name: consul
+    hostname: consul
+    ports:
+      - "8500:8500" # Порт для UI та HTTP API
+      - "8600:8600/tcp" # Порт для DNS
+      - "8600:8600/udp" # Порт для DNS
+    # Команда для запуску Consul в режимі розробки з UI
+    command: "agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0"
+    networks:
+      - kafka-net
+
+  # --- ВАШІ СЕРВІСИ KAFKA ЗАЛИШИЛИСЬ БЕЗ ЗМІН ---
+  kafka1:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka1
+    hostname: kafka1
+    ports:
+      - "9092:9092"
+      - "9095:9093"
+    environment:
+      CLUSTER_ID: 'pCRCjQMOQ-uAm_OhGzKBSQ'
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
+      KAFKA_LISTENERS: 'INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka1:19092,EXTERNAL://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    volumes:
+      - ./kafka1/data:/var/lib/kafka/data
+    networks:
+      - kafka-net
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka2
+    hostname: kafka2
+    ports:
+      - "9093:9092"
+      - "9096:9093"
+    environment:
+      CLUSTER_ID: 'pCRCjQMOQ-uAm_OhGzKBSQ'
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
+      KAFKA_LISTENERS: 'INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka2:19092,EXTERNAL://localhost:9093'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    volumes:
+      - ./kafka2/data:/var/lib/kafka/data
+    networks:
+      - kafka-net
+
+  kafka3:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka3
+    hostname: kafka3
+    ports:
+      - "9094:9092"
+      - "9097:9093"
+    environment:
+      CLUSTER_ID: 'pCRCjQMOQ-uAm_OhGzKBSQ'
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:9093,2@kafka2:9093,3@kafka3:9093'
+      KAFKA_LISTENERS: 'INTERNAL://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka3:19092,EXTERNAL://localhost:9094'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    volumes:
+      - ./kafka3/data:/var/lib/kafka/data
+    networks:
+      - kafka-net
+
+# --- Мережа, яка об'єднує всі сервіси ---
+networks:
+  kafka-net:
+    driver: bridge
