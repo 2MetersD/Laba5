@@ -7,7 +7,6 @@ import uvicorn
 import json
 from kafka import KafkaProducer
 import consul
-
 app = FastAPI()
 
 
@@ -22,7 +21,7 @@ def get_service_urls(service_name):
 def register_service():
     c = consul.Consul(host='localhost', port=8500)
     service_name = "facade-service"
-    port = 8000  # Порт для facade-service
+    port = 8000
     service_id = f"{service_name}-{port}"
 
     c.agent.service.register(
@@ -116,5 +115,4 @@ async def get_combined():
 
 if __name__ == "__main__":
     register_service()
-    # Змінено: тепер запускаємо "main:app" на порту 8000
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)

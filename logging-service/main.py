@@ -11,14 +11,11 @@ def register_service(port):
     service_name = "logging-service"
     service_id = f"{service_name}-{port}"
 
-    # Health check для Consul з Docker все ще використовує host.docker.internal
     http_check = consul.Check.http(f"http://host.docker.internal:{port}/health", "10s", "5s", "30s")
 
     c.agent.service.register(
         name=service_name,
         service_id=service_id,
-        # --- ВИПРАВЛЕНО ТУТ ---
-        # Повертаємо адресу 127.0.0.1, щоб інші сервіси на хості могли її бачити
         address="127.0.0.1",
         port=port,
         check=http_check

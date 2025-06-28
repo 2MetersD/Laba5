@@ -7,8 +7,6 @@ import os
 import uvicorn
 import consul
 
-
-# --- Зміни всередині цієї функції ---
 def register_service(port):
     print(f"[{port}] Намагаюся зареєструвати сервіс в Consul...")
     try:
@@ -30,8 +28,6 @@ def register_service(port):
     except Exception as e:
         print(f"[{port}] !!! ВИНИКЛА ПОМИЛКА ПРИ РЕЄСТРАЦІЇ В CONSUL: {e}")
 
-
-# -----------------------------------------
 
 def create_app(port):
     app = FastAPI()
